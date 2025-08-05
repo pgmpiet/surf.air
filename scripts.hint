@@ -1,0 +1,120 @@
+<iframe src="img/PIECE.HTML" frameborder="0"></iframe>
+
+<div id="image-container"></div>
+<script>
+  fetch('img/PIECE.HTML')
+    .then(response => response.text())
+    .then(html => {
+      document.getElementById('image-container').innerHTML = html;
+    });
+</script>
+
+<script>
+  const hashTrigger = '#loadImage';
+
+  if (window.location.hash === hashTrigger) {
+    fetch('img/PIECE.HTML')
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('image-container').innerHTML = html;
+      });
+  }
+</script>
+
+<script>
+  function loadImageFromHTML() {
+    fetch('img/PIECE.HTML')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('image-container').innerHTML = html;
+      });
+  }
+
+  if (window.location.hash === '#loadImage') {
+    loadImageFromHTML();
+  }
+
+  window.addEventListener('hashchange', () => {
+    if (window.location.hash === '#loadImage') {
+      loadImageFromHTML();
+    } else {
+      document.getElementById('image-container').innerHTML = ''; // Optional: clear on other hash
+    }
+  });
+</script>
+
+  <div id="image-container"></div>
+
+<script>
+  const routes = {
+    '#loadImage': () =>
+      fetch('img/PIECE.HTML')
+        .then(res => res.text())
+        .then(html => {
+          document.getElementById('image-container').innerHTML = html;
+        }),
+
+    '#about': () =>
+      document.getElementById('image-container').innerHTML = '<p>This is a base64 art viewer powered by PIECE.HTML.</p>',
+
+    '#clear': () =>
+      document.getElementById('image-container').innerHTML = ''
+  };
+
+  function handleRoute(hash) {
+    if (routes[hash]) {
+      routes[hash]();
+    }
+  }
+
+  // Initial load
+  handleRoute(window.location.hash);
+
+  // Reactive update
+  window.addEventListener('hashchange', () => {
+    handleRoute(window.location.hash);
+  });
+</script>
+
+#image:foo123
+#meta:42
+#view:custom-artifact
+
+const routes = [
+  {
+    pattern: /^#image:(.+)$/,
+    handler: (match) => {
+      const imageId = match[1];
+      document.getElementById('image-container').innerHTML = `<p>Loading image: ${imageId}</p>`;
+      // You could fetch `img/${imageId}.HTML` here
+    }
+  },
+  {
+    pattern: /^#meta:(\d+)$/,
+    handler: (match) => {
+      const metaId = match[1];
+      document.getElementById('image-container').innerHTML = `<p>Displaying metadata for item ${metaId}</p>`;
+    }
+  }
+];
+
+function handleRoute(hash) {
+  for (const route of routes) {
+    const match = hash.match(route.pattern);
+    if (match) {
+      route.handler(match);
+      return;
+    }
+  }
+
+  // Fallback if no route matches
+  document.getElementById('image-container').innerHTML = `<p>Unknown route: ${hash}</p>`;
+}
+
+// Initial load
+handleRoute(window.location.hash);
+
+// On hash change
+window.addEventListener('hashchange', () => {
+  handleRoute(window.location.hash);
+});
